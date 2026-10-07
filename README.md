@@ -1,4 +1,4 @@
-# cloudflare-ai-experimentation
+﻿# cloudflare-ai-experimentation
 
 Personal experiment with Cloudflare Workers AI, Workflows, Durable Objects, and a chat UI.
 
@@ -15,6 +15,10 @@ The demo reads synthetic CVs and application text and flags fraud signals: promp
 - Chat UI via Pages or a Worker-served front end
 
 See [`AGENTS.md`](./AGENTS.md) for coding-agent rules.
+
+## Docs
+
+Platform reference: [Cloudflare Developers](https://developers.cloudflare.com/)
 
 ## Status
 
