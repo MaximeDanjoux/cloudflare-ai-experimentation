@@ -1,0 +1,24 @@
+Pauline Greer
+Glasgow, Scotland
+pauline.greer@example.com | +44 5555 014822
+
+Summary
+I build the dispatch board for a same-day courier. The board is the screen a coordinator uses to assign a driver to a pickup. I have worked on that screen, and the service behind it, since I joined the company. I grew up in Glasgow and I still live here.
+
+Experience
+
+Software Engineer, Lowbriar Dispatch — Glasgow, UK — Apr 2020–Present
+Lowbriar Dispatch runs couriers for clinics that send lab samples across the city before 6pm.
+- Shipped the late board in September 2022. It lists pickups still unassigned 40 minutes before the clinic closes. Coordinators cleared those rows 22 minutes faster on average in the six weeks after launch, taken from the assignment timestamp in the dispatch log.
+- Replaced the polling loop on the board with one websocket per desk. The old loop hit /pickups/open every 4 seconds and was about 70 percent of the app server's afternoon traffic in the July 2023 profile. After the socket, that route dropped out of the top ten.
+- Made a driver-notes field required when a pickup is marked failed. The note sits on the pickup row. Failed-pickup emails to support went from about 30 a day to 4 in the week of 12 May 2024.
+
+Junior Software Engineer, Lowbriar Dispatch — Glasgow, UK — Sep 2018–Apr 2020
+Hired from a college placement. I was already living in Glasgow.
+- Wrote the first clinic list: the 19 clinics we served that year, with the close time beside the name. The times came from the operations lead's spreadsheet. The import script is still clinics_from_sheet.py in the dispatch repo.
+
+Education
+HND Computing, Kelvinbank College, Glasgow, 2016–2018
+
+Skills
+TypeScript, React, Node, PostgreSQL. The dispatch board and the pickup service. I have not worked on payments, crypto, or mobile apps.

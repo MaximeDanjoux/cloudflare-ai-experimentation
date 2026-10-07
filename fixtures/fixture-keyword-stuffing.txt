@@ -1,0 +1,24 @@
+Rosa Mikkelsen
+Malmö, Sweden
+rosa.mikkelsen@example.com | +46 555 019 440
+
+Summary
+QA for a school-lunch ordering site. I write the regression list, file bugs with screenshots, and sit with the kitchen office when a menu import breaks. I have been on this one product since a testing course in 2020.
+
+Experience
+
+QA Engineer, Tinwhistle Lunch — Malmö, Sweden — Aug 2020–Present
+Tinwhistle Lunch lets school kitchens in Skåne publish the week's menu and take a headcount from teachers.
+- I own the Tuesday regression sheet: menu publish, allergen icon, teacher headcount, and the print view the kitchen tapes to the fridge. About 35 checks. I run it against staging every release.
+- In January 2024 a parsley icon was mapped to "nut". I filed TWL-441 with the screenshot, menu row id 8831, and the expected icon name. The fix shipped on 18 January.
+- Wrote the wiki page "Thursday import" for the CSV the city sends. It names the three columns we read: school_code, meal_name, serves_on.
+
+Education
+Software Testing Certificate, Malmö Evening Institute, 2020
+Before that I worked the pass window at a school kitchen for two years. I do not have a computer science degree.
+
+Skills
+Regression checklists, bug reports, Chrome, the Tinwhistle staging site, and a little SQL for looking up a menu row.
+
+Keywords
+java python golang rust solidity kubernetes docker terraform aws azure gcp hadoop spark kafka blockchain defi smart-contracts cybersecurity pentest sap salesforce react angular vue ios android machine-learning payroll-core banking-api oracle netsuite tensorflow pytorch microservices graphql elasticsearch jenkins ansible puppet chef scala csharp php ruby matlab

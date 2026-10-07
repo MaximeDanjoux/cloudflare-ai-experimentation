@@ -13,9 +13,9 @@ Gitignored notes under `.local/` are local scratch. Tracked docs stand on their 
 | Language | TypeScript |
 | Validation | Zod for every external boundary (HTTP body, LLM structured output, env, DO state) |
 | Runtime | Cloudflare Workers (V8 isolates; Node-compatible APIs where available via Wrangler) |
-| LLM | Workers AI (Llama 3.3 on Workers AI, or the current equivalent model id), unless an env-gated external provider is explicitly enabled |
-| Coordination | Cloudflare Workflows and/or Workers; Durable Objects for session memory |
-| UI | Chat (Pages or Worker-served HTML); voice optional later via Realtime |
+| LLM | Workers AI, Llama 3.3, for the integrity JSON pass and the risk-summary reply |
+| Coordination | Workers are the HTTP edge and the Workflow entry. Cloudflare Workflows run Intake, then Integrity, then the Risk summarizer. Durable Objects hold session memory |
+| UI | Chat UI on Cloudflare Pages; voice optional later via Realtime |
 | Package manager | `pnpm` preferred; `npm` acceptable for one-off Wrangler scaffolds |
 | Tests | Vitest + `@cloudflare/vitest-pool-workers` where practical |
 
@@ -23,18 +23,9 @@ Do not add another framework unless the user asks.
 
 ## What the demo does
 
-The app takes synthetic CV or application text and runs a workflow:
+Cloudflare Pages serves the chat UI. The Worker accepts `POST /session/:id/message` with synthetic CV or application text. A three-step Workflow scores it. Session state stays on a Durable Object that can be wiped.
 
-1. Parse the text.
-2. Structure it with Zod.
-3. Score fraud signals.
-4. Ask follow-up questions in chat.
-5. Keep session memory in a Durable Object that can be wiped.
-
-Fraud signals:
-
-- Prompt injection in the document. Examples: "ignore previous instructions", hidden instruction overrides, text that tries to force a hire or approve result.
-- Materials that look fabricated or model-written. Examples: timelines that contradict, credentials that cannot exist, stock phrasing, skills with nothing in the text to support them.
+The shape is in [`ARCHITECTURE.md`](./ARCHITECTURE.md). Integrity runs deterministic injection and keyword scanners in parallel with a Llama 3.3 call that uses `prompts/integrity-agent.txt` and returns JSON. Zod parses that JSON. Invalid model JSON fails closed. Merged escalation rules then run: prompt injection becomes HIGH, and compound signals escalate. The Risk summarizer uses Llama 3.3 for the reply.
 
 Fixtures are fictional people and obviously fake resumes. The UI and README say: Demo only. Do not submit real personal data.
 
@@ -43,7 +34,7 @@ Fixtures are fictional people and obviously fake resumes. The UI and README say:
 1. **No secrets in the repo.** API tokens and `.dev.vars` stay local or in Cloudflare secrets. Never commit `.dev.vars`, `.env`, or key material.
 2. **No real personal data.** Never paste, commit, or upload real CVs, names, emails, or phone numbers. Samples stay synthetic.
 3. **No personal data in logs.** Log request ids, step names, durations, and counts. Never log resume text, chat content that names a person, or model prompts and responses that include contact details.
-4. **Demo retention only.** Session memory is short-lived. Prefer Durable Object state that can be wiped. Do not build a permanent document store. Document a TTL and a clear-session path.
+4. **Demo retention only.** Durable Object memory lasts 24 hours, then it is wiped. The chat UI exposes Clear session. Do not build a permanent document store. See `specs/session-ttl.md`.
 5. **Prefer Workers AI.** Keep inference on Cloudflare unless the user explicitly asks for an external LLM.
 6. **Zod at every boundary.** Parse `env`, request bodies, tool and LLM JSON, and persisted state with Zod. Fail closed on invalid shapes.
 7. **TypeScript strict.** No `any` without a one-line justification comment.
@@ -56,7 +47,13 @@ Fixtures are fictional people and obviously fake resumes. The UI and README say:
 /
   AGENTS.md
   README.md
+  ARCHITECTURE.md
   PROMPT_HISTORY.md
+  prompts/integrity-agent.txt
+  specs/api-contract.md
+  specs/session-ttl.md
+  specs/v1-ship-scope.md
+  specs/deploy-path.md
   package.json
   wrangler.toml
   src/

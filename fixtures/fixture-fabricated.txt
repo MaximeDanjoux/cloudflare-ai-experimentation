@@ -1,0 +1,31 @@
+Quynh Lan Bui
+Reykjavik, Iceland
+Based in Reykjavik since 2015
+quynh.lan.bui@example.com | +354 555 0148
+
+Professional Summary
+Dynamic and results-driven technology professional with a proven track record of leveraging innovative solutions to drive digital transformation. Passionate about delivering scalable impact, fostering cross-functional synergy, and exceeding stakeholder expectations in fast-paced global environments. Committed to operational excellence and continuous improvement across the enterprise.
+
+Education
+B.Sc. Computer Science, Red Lantern University, Da Nang, Vietnam, 2011–2015
+
+Experience
+
+Senior Software Engineer, Ashline Pay, crypto payments — Austin, TX (remote) — 2021–Present
+- Spearheaded the development of robust next-generation platform capabilities that enhanced operational efficiency and elevated the overall user experience.
+- Collaborated with diverse stakeholders to align technical strategy with business objectives and unlock sustainable growth opportunities.
+- Implemented best-in-class engineering practices to ensure high availability, security, and seamless scalability of mission-critical systems.
+- Drove continuous improvement initiatives that significantly increased team productivity and accelerated time-to-market.
+
+Software Engineer, Brightparcel Systems — Dublin (remote) — 2018–2021
+- Delivered high-quality software solutions that streamlined organizational workflows and improved end-to-end effectiveness.
+- Partnered with product and design stakeholders to translate complex requirements into elegant, user-centric outcomes.
+- Utilized modern technologies to build reliable services that supported enterprise clients worldwide.
+
+Junior Developer, Northglass Digital — Toronto (remote) — 2015–2018
+- Contributed to a wide range of development projects, demonstrating adaptability and a commitment to technical excellence.
+- Assisted in the successful delivery of key milestones while maintaining strong communication across distributed teams.
+- Supported the adoption of industry-leading tools that empowered the organization to achieve its strategic vision.
+
+Skills
+Python, Java, JavaScript, TypeScript, Go, Rust, C++, C#, Ruby, PHP, Kotlin, Swift, Scala, Solidity, R, MATLAB, SQL, NoSQL, HTML, CSS, React, Angular, Vue, Svelte, Node.js, Django, Spring, .NET, Laravel, TensorFlow, PyTorch, Kubernetes, Docker, AWS, Azure, GCP, Terraform, Hadoop, Spark, Kafka, Blockchain, DeFi, Smart Contracts, Cybersecurity, Penetration Testing, iOS, Android, Data Science, Machine Learning, DevOps, Payments, Payroll Systems, Banking APIs, SAP, Salesforce, UI/UX Design
