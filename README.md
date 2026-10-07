@@ -1,6 +1,8 @@
 # cloudflare-ai-experimentation
 
-Personal experimentation with Cloudflare Workers AI, Workflows / Durable Objects, and a chat UI.
+Personal experiment with Cloudflare Workers AI, Workflows, Durable Objects, and a chat UI.
+
+The demo reads synthetic CVs and application text and flags fraud signals: prompt injection, and writing that looks fabricated or model-generated.
 
 **Demo only.** Do not submit real personal data.
 
