@@ -1,0 +1,21 @@
+# Dependencies & build
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+!.env.example
+
+# Cloudflare / OS
+.mf/
+.DS_Store
+Thumbs.db
+
+# Local-only agent context (never commit)
+.local/
+AGENTS.local.md
+PROMPT_HISTORY.local.md
+*.local.md
+!.env.example
