@@ -1,0 +1,25 @@
+name = "cv-fraud-signal-demo"
+main = "src/index.ts"
+compatibility_date = "2026-10-08"
+compatibility_flags = ["nodejs_compat"]
+
+[ai]
+binding = "AI"
+
+[[workflows]]
+name = "cv-screening"
+binding = "SCREENING"
+class_name = "ScreeningWorkflow"
+
+[[durable_objects.bindings]]
+name = "SESSION"
+class_name = "SessionDurableObject"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SessionDurableObject"]
+
+[[rules]]
+type = "Text"
+globs = ["**/*.txt"]
+fallthrough = true
