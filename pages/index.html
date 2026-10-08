@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CV fraud-signal demo</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0 auto;
+        max-width: 40rem;
+        padding: 1.25rem;
+        font: 1rem/1.45 system-ui, sans-serif;
+      }
+      h1 { font-size: 1.4rem; margin: 0 0 0.5rem; }
+      .disclaimer { font-weight: 600; }
+      label { display: block; margin: 0.75rem 0 0.25rem; }
+      textarea, input {
+        width: 100%;
+        box-sizing: border-box;
+        font: inherit;
+      }
+      textarea { min-height: 10rem; }
+      .row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
+      button { font: inherit; padding: 0.4rem 0.8rem; }
+      .turn { border-top: 1px solid #8884; padding: 0.75rem 0; }
+      .level { font-weight: 700; }
+      .error { color: #b00020; }
+    </style>
+  </head>
+  <body>
+    <h1>CV fraud-signal demo</h1>
+    <p class="disclaimer">Demo only. Do not submit real personal data.</p>
+    <label for="api-base">Worker URL</label>
+    <input id="api-base" value="http://127.0.0.1:8787">
+    <label for="cv">CV text</label>
+    <textarea id="cv"></textarea>
+    <label for="job-post">Job post (optional)</label>
+    <textarea id="job-post"></textarea>
+    <label for="signals">Application signals (optional)</label>
+    <textarea id="signals"></textarea>
+    <div class="row">
+      <button id="send" type="button">Screen</button>
+      <button id="clear-session" type="button" hidden>Clear session</button>
+    </div>
+    <p id="status"></p>
+    <div id="transcript"></div>
+    <script>
+      const CLEAR_ROUTE = "/session/:id/clear";
+      const MESSAGE_ROUTE = "/session/:id/message";
+      const apiBaseInput = document.querySelector("#api-base");
+      const cvInput = document.querySelector("#cv");
+      const jobPostInput = document.querySelector("#job-post");
+      const signalsInput = document.querySelector("#signals");
+      const sendButton = document.querySelector("#send");
+      const clearButton = document.querySelector("#clear-session");
+      const statusLine = document.querySelector("#status");
+      const transcript = document.querySelector("#transcript");
+      let sessionId = null;
+
+      function apiBase() {
+        return apiBaseInput.value.replace(/\/$/, "");
+      }
+
+      function route(template, id) {
+        return template.replace(":id", id);
+      }
+
+      function showSession() {
+        clearButton.hidden = sessionId === null;
+      }
+
+      function appendTurn(title, text) {
+        const block = document.createElement("div");
+        block.className = "turn";
+        const heading = document.createElement("p");
+        heading.className = "level";
+        heading.textContent = title;
+        const body = document.createElement("p");
+        body.textContent = text;
+        block.append(heading, body);
+        transcript.append(block);
+      }
+
+      sendButton.addEventListener("click", async () => {
+        statusLine.textContent = "";
+        statusLine.className = "";
+        if (!sessionId) {
+          sessionId = crypto.randomUUID().replace(/-/g, "");
+          showSession();
+        }
+        const payload = { text: cvInput.value };
+        if (jobPostInput.value.trim()) payload.jobPost = jobPostInput.value;
+        if (signalsInput.value.trim()) payload.applicationSignals = signalsInput.value;
+        appendTurn("You", cvInput.value);
+        try {
+          const response = await fetch(apiBase() + route(MESSAGE_ROUTE, sessionId), {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const body = await response.json();
+          if (!response.ok) {
+            statusLine.className = "error";
+            statusLine.textContent = body.error || "Request failed.";
+            return;
+          }
+          const summary = body.summary;
+          appendTurn(
+            "Risk level: " + summary.risk_level,
+            "Evidence: " + summary.fired_signals.join(", ") + "\n" + summary.reply,
+          );
+        } catch {
+          statusLine.className = "error";
+          statusLine.textContent = "Could not reach the worker.";
+        }
+      });
+
+      clearButton.addEventListener("click", async () => {
+        if (!sessionId) return;
+        statusLine.textContent = "";
+        try {
+          const response = await fetch(apiBase() + route(CLEAR_ROUTE, sessionId), { method: "POST" });
+          const body = await response.json();
+          if (body.cleared === true) {
+            transcript.replaceChildren();
+            sessionId = null;
+            showSession();
+            return;
+          }
+          statusLine.className = "error";
+          statusLine.textContent = "Clear failed.";
+        } catch {
+          statusLine.className = "error";
+          statusLine.textContent = "Clear failed.";
+        }
+      });
+    </script>
+  </body>
+</html>
