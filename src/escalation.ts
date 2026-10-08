@@ -51,11 +51,9 @@ function cloneSignals(signals: IntegrityReport["signals"]): IntegrityReport["sig
 
 function applyGates(signals: IntegrityReport["signals"]): IntegrityReport["signals"] {
   const gated = new Set<string>(ESCALATION.gatedUnlessAnotherCategory);
-  const ungatedHit = SIGNAL_KEYS.some((key) => !gated.has(key) && signals[key].detected);
-  if (!ungatedHit) {
-    for (const key of ESCALATION.gatedUnlessAnotherCategory) {
-      signals[key] = { detected: false, evidence: "" };
-    }
+  const detected = SIGNAL_KEYS.filter((key) => signals[key].detected);
+  if (detected.length === 1 && gated.has(detected[0])) {
+    signals[detected[0]] = { detected: false, evidence: "" };
   }
   return signals;
 }
@@ -135,12 +133,31 @@ function distinctivePhrases(jobPost: string): string[] {
   return phrases;
 }
 
+function roleEndYear(header: string): number {
+  if (/\b(?:present|current)\b/i.test(header)) {
+    return 9999;
+  }
+  const years = [...header.matchAll(/\b(?:19|20)\d{2}\b/g)].map((match) => Number(match[0]));
+  return years.length === 0 ? 0 : Math.max(...years);
+}
+
 function latestRoleAndUntethered(resume: string): string {
   const lines = resume.split(/\r?\n/);
   let inExperience = false;
-  let seenRole = false;
-  const latest: string[] = [];
+  let current: string[] | null = null;
+  let currentEnd = -1;
+  let best: string[] = [];
+  let bestEnd = -1;
   const untethered: string[] = [];
+
+  const closeRole = () => {
+    if (current && currentEnd > bestEnd) {
+      best = current;
+      bestEnd = currentEnd;
+    }
+    current = null;
+  };
+
   for (const line of lines) {
     const trimmed = line.trim();
     if (/^experience$/i.test(trimmed)) {
@@ -149,24 +166,26 @@ function latestRoleAndUntethered(resume: string): string {
     }
     if (inExperience && /^(education|skills|keywords|summary|professional summary)$/i.test(trimmed)) {
       inExperience = false;
-    }
-    const roleHeader = /\b(19|20)\d{2}\b/.test(trimmed) && !trimmed.startsWith("-") && !trimmed.startsWith("•");
-    if (inExperience && roleHeader) {
-      if (seenRole) {
-        break;
-      }
-      seenRole = true;
-      latest.push(line);
+      closeRole();
       continue;
     }
-    if (inExperience && seenRole) {
-      latest.push(line);
+    const roleHeader = /\b(?:19|20)\d{2}\b/.test(trimmed) && !trimmed.startsWith("-") && !trimmed.startsWith("•");
+    if (inExperience && roleHeader) {
+      closeRole();
+      current = [line];
+      currentEnd = roleEndYear(trimmed);
+      continue;
+    }
+    if (inExperience && current) {
+      current.push(line);
+      continue;
     }
     if (!inExperience && /^[-•]/.test(trimmed)) {
       untethered.push(line);
     }
   }
-  return [...latest, ...untethered].join("\n");
+  closeRole();
+  return [...best, ...untethered].join("\n");
 }
 
 export function assessJobPostEcho(packet: ApplicationPacket, evidence: string): boolean {

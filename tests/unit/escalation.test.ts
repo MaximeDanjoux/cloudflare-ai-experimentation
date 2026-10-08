@@ -82,6 +82,42 @@ describe("escalation constants", () => {
     }
   });
 
+  it("scores remote work plus an access-heavy industry as MEDIUM", () => {
+    const result = mergeAndEscalate(
+      quietScanner,
+      reportWith({
+        high_value_industry_targeting: { detected: true, evidence: "crypto payments" },
+        remote_only_history: { detected: true, evidence: "remote" },
+      }),
+      false,
+    );
+    expect(result.risk_level).toBe("MEDIUM");
+    expect(result.fired_signals).toEqual([
+      "high_value_industry_targeting",
+      "remote_only_history",
+    ]);
+    expect(result.apply_fake_profile_tag).toBe(false);
+  });
+
+  it("keeps three gated categories and scores them HIGH", () => {
+    const result = mergeAndEscalate(
+      quietScanner,
+      reportWith({
+        persona_red_flags: { detected: true, evidence: "thin history" },
+        high_value_industry_targeting: { detected: true, evidence: "crypto payments" },
+        remote_only_history: { detected: true, evidence: "remote only" },
+      }),
+      false,
+    );
+    expect(result.risk_level).toBe("HIGH");
+    expect(result.fired_signals).toEqual([
+      "persona_red_flags",
+      "high_value_industry_targeting",
+      "remote_only_history",
+    ]);
+    expect(result.apply_fake_profile_tag).toBe(true);
+  });
+
   it("escalates three detected categories to HIGH", () => {
     const result = mergeAndEscalate(
       quietScanner,
@@ -155,6 +191,30 @@ describe("job-post echo three-part test", () => {
       `- Owned the ${phrase} for the desk.`,
     ].join("\n");
     expect(assessJobPostEcho(packet({ resume }), phrase)).toBe(false);
+  });
+
+  it("passes when the latest role is listed second", () => {
+    const resume = [
+      "Experience",
+      "Engineer, Older Co — City — 2016–2019",
+      "- Kept the archive index.",
+      "Engineer, Desk Co — City — 2020–Present",
+      `- Owned the ${phrase} for the desk.`,
+    ].join("\n");
+    expect(assessJobPostEcho(packet({ resume }), phrase)).toBe(true);
+  });
+
+  it("passes for an untethered Skills bullet after a later role", () => {
+    const resume = [
+      "Experience",
+      "Engineer, Older Co — City — 2016–2019",
+      "- Kept the archive index.",
+      "Engineer, Desk Co — City — 2020–Present",
+      "- Shipped the late board for clinic pickups.",
+      "Skills",
+      `- Owned the ${phrase} for the desk.`,
+    ].join("\n");
+    expect(assessJobPostEcho(packet({ resume }), phrase)).toBe(true);
   });
 
   it("passes for an untethered bullet with no concrete anchor", () => {
