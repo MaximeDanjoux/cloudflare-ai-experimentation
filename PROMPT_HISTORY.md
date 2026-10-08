@@ -139,3 +139,23 @@ Ship scope for v1. Ship chat on Pages, the Intake → Integrity → Risk summari
 Deploy path. Use wrangler login locally, bind Workers AI in wrangler.toml, iterate with wrangler dev, and ship with wrangler deploy.
 
 **What changed:** Added `specs/api-contract.md`, `specs/session-ttl.md`, `specs/v1-ship-scope.md`, and `specs/deploy-path.md`. `ARCHITECTURE.md` and `AGENTS.md` point at the 24-hour TTL and those specs.
+
+## 2026-10-08 — v1 chat demo
+
+**Goal:** Implement the synthetic CV fraud-signal chat so `wrangler dev` runs it locally and `wrangler deploy` ships it.
+
+**Prompt:**
+
+Implement v1 of the synthetic CV fraud-signal chat demo so that wrangler dev runs it locally and wrangler deploy ships it, following AGENTS.md, ARCHITECTURE.md, and the files in specs/.
+
+A Cloudflare Workflow runs Intake, then Integrity, then Risk summarizer. Intake turns pasted text into an ApplicationPacket. Integrity runs deterministic checks for prompt injection and keyword stuffing alongside a Workers AI call to Llama 3.3 (`@cf/meta/llama-3.3-70b-instruct-fp8-fast`) that uses `prompts/integrity-agent.txt`. Parse the model text as JSON and then as IntegrityReport. Markdown fences, trailing prose, extra keys, and non-JSON fail the Integrity step. The Risk summarizer merges both into a RiskSummary and a short chat reply.
+
+Every schema in specs/api-contract.md is the Zod contract, with `.strict()` and coercion off, at every boundary: HTTP bodies, Workflow step payloads, model JSON, and Durable Object state. Invalid shapes fail closed. Invalid HTTP bodies return 400 and a short error name and do not echo the body.
+
+Escalation rules are code constants. Prompt injection alone is HIGH. Three or more detected categories is HIGH. Job-post echo is HIGH only when its three-part test is met. Remote work alone, an access-heavy industry alone, polished prose alone, and a single typo never give HIGH. `apply_fake_profile_tag` is true only on HIGH.
+
+The Durable Object stores only the SHA-256 of the canonical ApplicationPacket, the last RiskSummary, and `expiresAt`. `expiresAt` is 24 hours after the last successful message and is replaced, not stacked. A read past `expiresAt` wipes the state, and an alarm is scheduled at `expiresAt`. Clear session deletes that state in the request. The Pages chat lets someone paste CV text, see the risk level and evidence, and send a follow-up on the same session id. It shows Clear session, and it says: Demo only. Do not submit real personal data.
+
+`wrangler.toml` binds Workers AI, the Workflow, and the Durable Object. Vitest covers the Zod schemas, the escalation constants, and all four fixtures without calling the model. `fixtures/fixture-prompt-injection.txt` comes out HIGH. `fixtures/fixture-clean.txt` is not flagged by the deterministic checks.
+
+**What changed:** Added the Worker, the three-step Workflow, the session Durable Object, the Pages chat, `wrangler.toml`, the package manifest, and Vitest tests. `README.md` now says how to run and ship v1.
